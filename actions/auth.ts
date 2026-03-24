@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export type AuthResult = { error: string } | { success: true }
+export type AuthResult = { error: string } | { success: true; message?: string }
 
 export function validateAuthInput(
   email: string,
@@ -22,16 +22,22 @@ export async function register(
   _prev: AuthResult | null,
   formData: FormData
 ): Promise<AuthResult> {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = String(formData.get('email') ?? '')
+  const password = String(formData.get('password') ?? '')
 
   const validation = validateAuthInput(email, password)
   if (!validation.valid) return { error: validation.error! }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({ email, password })
 
   if (error) return { error: error.message }
+
+  // If no session, email confirmation is required
+  if (!data.session) {
+    return { success: true, message: 'Check your email to confirm your account.' }
+  }
+
   redirect('/dashboard')
 }
 
@@ -39,8 +45,8 @@ export async function login(
   _prev: AuthResult | null,
   formData: FormData
 ): Promise<AuthResult> {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = String(formData.get('email') ?? '')
+  const password = String(formData.get('password') ?? '')
 
   const validation = validateAuthInput(email, password)
   if (!validation.valid) return { error: validation.error! }
@@ -54,6 +60,7 @@ export async function login(
 
 export async function logout() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut()
+  if (error) console.error('signOut error:', error.message)
   redirect('/login')
 }
