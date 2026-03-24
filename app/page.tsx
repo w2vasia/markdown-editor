@@ -9,8 +9,8 @@ export default function LandingPage() {
         Write in a beautiful WYSIWYG editor. Share your documents with a single link.
       </p>
       <div className="flex gap-3">
-        <Button render={<Link href="/register" />}>Get started</Button>
-        <Button variant="outline" render={<Link href="/login" />}>Sign in</Button>
+        <Link href="/register"><Button>Get started</Button></Link>
+        <Link href="/login"><Button variant="outline">Sign in</Button></Link>
       </div>
     </div>
   )
