@@ -11,6 +11,7 @@ export default async function DashboardPage() {
   const { data: documents } = await supabase
     .from('documents')
     .select('*')
+    .eq('user_id', user.id)
     .order('updated_at', { ascending: false })
 
   return (

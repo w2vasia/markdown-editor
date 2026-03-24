@@ -62,7 +62,7 @@ export async function deleteDocument(id: string): Promise<void> {
   // Storage removal is best-effort (file may not exist if doc was never saved)
   await supabase.storage.from('documents').remove([path])
 
-  const { error } = await supabase.from('documents').delete().eq('id', id)
+  const { error } = await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id)
   if (error) throw new Error(error.message)
 
   revalidatePath('/dashboard')
@@ -76,11 +76,24 @@ export async function publishDocument(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const slug = isPublic ? generateSlug() : null
+  const { data: existing, error: fetchError } = await supabase
+    .from('documents')
+    .select('slug')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (fetchError) throw new Error(fetchError.message)
+
+  // On unpublish: only flip is_public, preserve slug so re-publishing restores the same URL.
+  // On publish: reuse existing slug or generate a new one.
+  const updates = isPublic
+    ? { is_public: true, slug: existing.slug ?? generateSlug() }
+    : { is_public: false }
 
   const { data, error } = await supabase
     .from('documents')
-    .update({ is_public: isPublic, slug })
+    .update(updates)
     .eq('id', id)
     .eq('user_id', user.id)
     .select('slug')

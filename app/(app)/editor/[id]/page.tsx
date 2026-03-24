@@ -20,6 +20,7 @@ export default async function EditorPage({
     .from('documents')
     .select('*')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (!doc) notFound()

@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { deleteDocument } from '@/actions/documents'
@@ -39,7 +40,13 @@ export function DocList({ documents }: { documents: Document[] }) {
             size="sm"
             className="text-destructive hover:text-destructive ml-2"
             onClick={() =>
-              startTransition(() => deleteDocument(doc.id))
+              startTransition(async () => {
+                try {
+                  await deleteDocument(doc.id)
+                } catch {
+                  toast.error('Failed to delete document')
+                }
+              })
             }
           >
             Delete

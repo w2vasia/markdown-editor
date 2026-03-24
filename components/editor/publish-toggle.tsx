@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { publishDocument } from '@/actions/documents'
 
@@ -26,8 +27,10 @@ export function PublishToggle({
       const result = await publishDocument(documentId, next)
       setIsPublic(next)
       setSlug(result.slug)
+      toast.success(next ? 'Document published' : 'Document unpublished')
     } catch (err) {
       console.error('publish error:', err)
+      toast.error('Failed to update publish status')
     } finally {
       setPending(false)
     }
@@ -49,7 +52,16 @@ export function PublishToggle({
             size="sm"
             onClick={() => {
               const url = `${window.location.origin}/doc/${slug!}`
-              navigator.clipboard.writeText(url)
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(url)
+              } else {
+                const el = document.createElement('textarea')
+                el.value = url
+                document.body.appendChild(el)
+                el.select()
+                document.execCommand('copy')
+                document.body.removeChild(el)
+              }
             }}
           >
             Copy

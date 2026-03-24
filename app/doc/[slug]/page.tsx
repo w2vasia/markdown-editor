@@ -1,7 +1,26 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/server'
 import { buildStoragePath } from '@/lib/utils'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const supabase = await createClient()
+  const { data: doc } = await supabase
+    .from('documents')
+    .select('title')
+    .eq('slug', slug)
+    .eq('is_public', true)
+    .single()
+
+  if (!doc) return {}
+  return { title: doc.title, openGraph: { title: doc.title } }
+}
 
 export default async function PublicDocPage({
   params,
