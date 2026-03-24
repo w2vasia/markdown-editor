@@ -33,7 +33,11 @@ export async function middleware(request: NextRequest) {
   )
 
   if (isProtected && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
+    supabaseResponse.cookies.getAll().forEach(cookie =>
+      redirectResponse.cookies.set(cookie.name, cookie.value)
+    )
+    return redirectResponse
   }
 
   // Redirect logged-in users away from auth pages
@@ -41,7 +45,11 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/register')
   )) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
+    supabaseResponse.cookies.getAll().forEach(cookie =>
+      redirectResponse.cookies.set(cookie.name, cookie.value)
+    )
+    return redirectResponse
   }
 
   return supabaseResponse
