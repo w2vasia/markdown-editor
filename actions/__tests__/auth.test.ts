@@ -11,6 +11,13 @@ vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
 const mockCreateClient = vi.mocked(createClient)
 const mockRedirect = vi.mocked(redirect)
 
+function makeFormData(email: string, password: string) {
+  const fd = new FormData()
+  fd.set('email', email)
+  fd.set('password', password)
+  return fd
+}
+
 // ── Existing tests (unchanged) ────────────────────────────────────────────────
 describe('validateAuthInput', () => {
   it('rejects empty email', () => {
@@ -38,13 +45,6 @@ describe('validateAuthInput', () => {
 
 // ── register ──────────────────────────────────────────────────────────────────
 describe('register', () => {
-  function makeFormData(email: string, password: string) {
-    const fd = new FormData()
-    fd.set('email', email)
-    fd.set('password', password)
-    return fd
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockCreateClient.mockResolvedValue(buildMockSupabaseClient() as any)
@@ -86,13 +86,6 @@ describe('register', () => {
 
 // ── login ─────────────────────────────────────────────────────────────────────
 describe('login', () => {
-  function makeFormData(email: string, password: string) {
-    const fd = new FormData()
-    fd.set('email', email)
-    fd.set('password', password)
-    return fd
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockCreateClient.mockResolvedValue(buildMockSupabaseClient() as any)
