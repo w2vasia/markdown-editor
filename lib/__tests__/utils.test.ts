@@ -1,8 +1,12 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { debounce, generateSlug } from '../utils'
 
 describe('debounce', () => {
-  it('delays function execution', async () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('delays function execution', () => {
     vi.useFakeTimers()
     const fn = vi.fn()
     const debounced = debounce(fn, 100)
@@ -12,7 +16,6 @@ describe('debounce', () => {
     expect(fn).not.toHaveBeenCalled()
     vi.advanceTimersByTime(100)
     expect(fn).toHaveBeenCalledTimes(1)
-    vi.useRealTimers()
   })
 })
 
