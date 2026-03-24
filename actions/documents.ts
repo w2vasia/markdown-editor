@@ -32,18 +32,24 @@ export async function updateDocument(
 ): Promise<void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) redirect('/login')
 
-  await supabase.from('documents').update(updates).eq('id', id)
+  const { error: dbError } = await supabase
+    .from('documents')
+    .update(updates)
+    .eq('id', id)
+
+  if (dbError) throw new Error(dbError.message)
 
   if (content !== undefined) {
     const path = buildStoragePath(user.id, id)
-    await supabase.storage
+    const { error: storageError } = await supabase.storage
       .from('documents')
       .upload(path, content, {
         contentType: 'text/markdown',
         upsert: true,
       })
+    if (storageError) throw new Error(storageError.message)
   }
 
   revalidatePath(`/editor/${id}`)
@@ -52,11 +58,15 @@ export async function updateDocument(
 export async function deleteDocument(id: string): Promise<void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) redirect('/login')
 
   const path = buildStoragePath(user.id, id)
+
+  // Storage removal is best-effort (file may not exist if doc was never saved)
   await supabase.storage.from('documents').remove([path])
-  await supabase.from('documents').delete().eq('id', id)
+
+  const { error } = await supabase.from('documents').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 
   revalidatePath('/dashboard')
 }
@@ -76,6 +86,7 @@ export async function publishDocument(
     .single()
 
   if (error) throw new Error(error.message)
+  revalidatePath('/dashboard')
   revalidatePath(`/editor/${id}`)
   return { slug: data.slug }
 }
