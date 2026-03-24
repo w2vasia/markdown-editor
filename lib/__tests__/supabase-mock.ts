@@ -1,7 +1,7 @@
 // lib/__tests__/supabase-mock.ts
 import { vi } from 'vitest'
 
-/** Returns a jest/vitest mock of a chained Supabase query builder. */
+/** Returns a vitest mock of a chained Supabase query builder. */
 function makeMockBuilder(resolvedValue: { data: unknown; error: unknown }) {
   const chain: Record<string, unknown> = {}
   const terminal = vi.fn().mockResolvedValue(resolvedValue)

@@ -17,6 +17,16 @@ describe('debounce', () => {
     vi.advanceTimersByTime(100)
     expect(fn).toHaveBeenCalledTimes(1)
   })
+
+  it('cancel prevents pending call', () => {
+    vi.useFakeTimers()
+    const fn = vi.fn()
+    const debounced = debounce(fn, 100)
+    debounced()
+    debounced.cancel()
+    vi.advanceTimersByTime(200)
+    expect(fn).not.toHaveBeenCalled()
+  })
 })
 
 describe('generateSlug', () => {
@@ -29,20 +39,6 @@ describe('generateSlug', () => {
   it('generates unique slugs', () => {
     const slugs = new Set(Array.from({ length: 10 }, generateSlug))
     expect(slugs.size).toBe(10)
-  })
-})
-
-describe('debounce – cancel', () => {
-  afterEach(() => vi.useRealTimers())
-
-  it('cancel prevents pending call', () => {
-    vi.useFakeTimers()
-    const fn = vi.fn()
-    const debounced = debounce(fn, 100)
-    debounced()
-    debounced.cancel()
-    vi.advanceTimersByTime(200)
-    expect(fn).not.toHaveBeenCalled()
   })
 })
 
