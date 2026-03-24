@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createDocument, updateDocument, deleteDocument, publishDocument, getDocumentContent } from '../documents'
 import { createClient } from '@/lib/supabase/server'

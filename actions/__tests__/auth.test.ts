@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { validateAuthInput } from '../../lib/utils'
 import { register, login, logout } from '../auth'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { buildMockSupabaseClient, buildUnauthClient } from '@/lib/__tests__/supabase-mock'
+import { buildMockSupabaseClient } from '@/lib/__tests__/supabase-mock'
 
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }))

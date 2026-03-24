@@ -6,12 +6,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function debounce<T extends (...args: any[]) => any>(
-  fn: T,
+export function debounce<Args extends unknown[], R>(
+  fn: (...args: Args) => R,
   delay: number
-): ((...args: Parameters<T>) => void) & { cancel: () => void } {
+): ((...args: Args) => void) & { cancel: () => void } {
   let timer: ReturnType<typeof setTimeout>
-  const debounced = (...args: Parameters<T>) => {
+  const debounced = (...args: Args) => {
     clearTimeout(timer)
     timer = setTimeout(() => fn(...args), delay)
   }

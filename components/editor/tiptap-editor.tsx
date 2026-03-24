@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
@@ -19,6 +20,9 @@ export function TipTapEditor({
   initialContent,
 }: TipTapEditorProps) {
   const titleRef = useRef<HTMLInputElement>(null)
+  const documentIdRef = useRef(documentId)
+  // eslint-disable-next-line react-hooks/refs
+  documentIdRef.current = documentId
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -31,24 +35,32 @@ export function TipTapEditor({
     },
   })
 
+  /* eslint-disable react-hooks/refs */
   const saveRef = useRef(
     debounce(async (title: string, markdown: string) => {
-      await updateDocument(
-        documentId,
-        { title, updated_at: new Date().toISOString() },
-        markdown
-      )
+      try {
+        await updateDocument(
+          documentIdRef.current,
+          { title, updated_at: new Date().toISOString() },
+          markdown
+        )
+      } catch {
+        toast.error('Failed to save document')
+      }
     }, 1000)
   )
+  /* eslint-enable react-hooks/refs */
 
   // Cancel pending save on unmount
   useEffect(() => {
-    return () => { saveRef.current.cancel() }
+    const save = saveRef.current
+    return () => { save.cancel() }
   }, [])
 
   useEffect(() => {
     if (!editor) return
     const handler = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const markdown = (editor as any).getMarkdown() as string
       const title = titleRef.current?.value ?? 'Untitled'
       saveRef.current(title, markdown)
@@ -63,6 +75,7 @@ export function TipTapEditor({
         ref={titleRef}
         defaultValue={initialTitle}
         onChange={() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const markdown = (editor as any)?.getMarkdown() as string ?? ''
           saveRef.current(titleRef.current?.value ?? 'Untitled', markdown)
         }}
