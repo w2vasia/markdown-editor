@@ -222,7 +222,7 @@ describe('publishDocument', () => {
 
     await publishDocument('doc-1', true)
 
-    expect(updateChain.update).toHaveBeenCalledWith({ is_public: true, slug: expect.any(String) })
+    expect(updateChain.update).toHaveBeenCalledWith({ is_public: true, slug: expect.stringMatching(/\S+/) })
   })
 
   it('unpublishing only flips is_public, no slug in payload', async () => {
@@ -274,5 +274,7 @@ describe('getDocumentContent', () => {
     const result = await getDocumentContent('user-123', 'doc-1')
 
     expect(result).toBe('# My Doc')
+    const storageBucket = client.storage.from.mock.results[0].value
+    expect(storageBucket.download).toHaveBeenCalledWith('user-123/doc-1.md')
   })
 })
