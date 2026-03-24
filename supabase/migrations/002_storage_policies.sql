@@ -11,6 +11,10 @@ create policy "Users can update own documents"
   using (
     bucket_id = 'documents'
     and auth.uid()::text = (storage.foldername(name))[1]
+  )
+  with check (
+    bucket_id = 'documents'
+    and auth.uid()::text = (storage.foldername(name))[1]
   );
 
 create policy "Users can read own documents"
