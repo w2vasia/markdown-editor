@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildStoragePath } from '../documents'
+import { buildStoragePath } from '../../lib/utils'
 
 describe('buildStoragePath', () => {
   it('returns correct storage path', () => {

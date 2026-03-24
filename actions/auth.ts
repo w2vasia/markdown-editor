@@ -2,21 +2,9 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { validateAuthInput } from '@/lib/utils'
 
 export type AuthResult = { error: string } | { success: true; message?: string }
-
-export function validateAuthInput(
-  email: string,
-  password: string
-): { valid: boolean; error?: string } {
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { valid: false, error: 'Valid email is required' }
-  }
-  if (password.length < 6) {
-    return { valid: false, error: 'Password must be at least 6 characters' }
-  }
-  return { valid: true }
-}
 
 export async function register(
   _prev: AuthResult | null,

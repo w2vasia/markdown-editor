@@ -3,12 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { generateSlug } from '@/lib/utils'
+import { generateSlug, buildStoragePath } from '@/lib/utils'
 import type { DocumentUpdate } from '@/types/database'
-
-export function buildStoragePath(userId: string, documentId: string): string {
-  return `${userId}/${documentId}.md`
-}
 
 export async function createDocument(): Promise<void> {
   const supabase = await createClient()

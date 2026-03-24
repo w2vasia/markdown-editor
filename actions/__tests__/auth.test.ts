@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateAuthInput } from '../auth'
+import { validateAuthInput } from '../../lib/utils'
 
 describe('validateAuthInput', () => {
   it('rejects empty email', () => {

@@ -21,16 +21,19 @@ export function PublishToggle({
 
   const toggle = async () => {
     setPending(true)
-    const next = !isPublic
-    const result = await publishDocument(documentId, next)
-    setIsPublic(next)
-    setSlug(result.slug)
-    setPending(false)
+    try {
+      const next = !isPublic
+      const result = await publishDocument(documentId, next)
+      setIsPublic(next)
+      setSlug(result.slug)
+    } catch (err) {
+      console.error('publish error:', err)
+    } finally {
+      setPending(false)
+    }
   }
 
-  const shareUrl = slug
-    ? `${window.location.origin}/doc/${slug}`
-    : null
+  const shareUrl = slug ? `/doc/${slug}` : null
 
   return (
     <div className="flex items-center gap-3">
@@ -44,7 +47,10 @@ export function PublishToggle({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigator.clipboard.writeText(shareUrl)}
+            onClick={() => {
+              const url = `${window.location.origin}/doc/${slug!}`
+              navigator.clipboard.writeText(url)
+            }}
           >
             Copy
           </Button>

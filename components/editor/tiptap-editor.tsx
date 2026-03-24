@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from '@tiptap/markdown'
@@ -21,6 +21,7 @@ export function TipTapEditor({
   const titleRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [StarterKit, Markdown],
     content: initialContent,
     editorProps: {
@@ -30,28 +31,31 @@ export function TipTapEditor({
     },
   })
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const save = useCallback(
+  const saveRef = useRef(
     debounce(async (title: string, markdown: string) => {
       await updateDocument(
         documentId,
         { title, updated_at: new Date().toISOString() },
         markdown
       )
-    }, 1000),
-    [documentId]
+    }, 1000)
   )
+
+  // Cancel pending save on unmount
+  useEffect(() => {
+    return () => { saveRef.current.cancel() }
+  }, [])
 
   useEffect(() => {
     if (!editor) return
     const handler = () => {
-      const markdown = editor.getMarkdown()
+      const markdown = (editor as any).getMarkdown() as string
       const title = titleRef.current?.value ?? 'Untitled'
-      save(title, markdown)
+      saveRef.current(title, markdown)
     }
     editor.on('update', handler)
     return () => { editor.off('update', handler) }
-  }, [editor, save])
+  }, [editor])
 
   return (
     <div className="space-y-4">
@@ -59,8 +63,8 @@ export function TipTapEditor({
         ref={titleRef}
         defaultValue={initialTitle}
         onChange={() => {
-          const markdown = editor?.getMarkdown() ?? ''
-          save(titleRef.current?.value ?? 'Untitled', markdown)
+          const markdown = (editor as any)?.getMarkdown() as string ?? ''
+          saveRef.current(titleRef.current?.value ?? 'Untitled', markdown)
         }}
         placeholder="Document title"
         className="w-full text-3xl font-bold border-none outline-none bg-transparent placeholder:text-muted-foreground"

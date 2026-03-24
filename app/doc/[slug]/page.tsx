@@ -2,27 +2,23 @@ import { notFound } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/server'
 
-async function getPublicDoc(slug: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('documents')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_public', true)
-    .single()
-  return data
-}
-
 export default async function PublicDocPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const doc = await getPublicDoc(slug)
+  const supabase = await createClient()
+
+  const { data: doc } = await supabase
+    .from('documents')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_public', true)
+    .single()
+
   if (!doc) notFound()
 
-  const supabase = await createClient()
   const path = `${doc.user_id}/${doc.id}.md`
   const { data: fileData } = await supabase.storage
     .from('documents')
