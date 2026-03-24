@@ -34,6 +34,7 @@ export async function updateDocument(
     .from('documents')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (dbError) throw new Error(dbError.message)
 
@@ -72,12 +73,16 @@ export async function publishDocument(
   isPublic: boolean
 ): Promise<{ slug: string | null }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
   const slug = isPublic ? generateSlug() : null
 
   const { data, error } = await supabase
     .from('documents')
     .update({ is_public: isPublic, slug })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select('slug')
     .single()
 

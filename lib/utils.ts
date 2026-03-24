@@ -23,8 +23,6 @@ export function generateSlug(): string {
   return nanoid(10)
 }
 
-export type AuthResult = { error: string } | { success: true; message?: string }
-
 export function validateAuthInput(
   email: string,
   password: string

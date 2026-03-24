@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/server'
+import { buildStoragePath } from '@/lib/utils'
 
 export default async function PublicDocPage({
   params,
@@ -19,7 +20,7 @@ export default async function PublicDocPage({
 
   if (!doc) notFound()
 
-  const path = `${doc.user_id}/${doc.id}.md`
+  const path = buildStoragePath(doc.user_id, doc.id)
   const { data: fileData } = await supabase.storage
     .from('documents')
     .download(path)
